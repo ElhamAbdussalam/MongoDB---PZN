@@ -158,6 +158,7 @@ db.customers.find({
   },
 });
 
+// insert into products (...) values (...), (...), (...)
 db.products.insertMany([
   {
     _id: 6,
@@ -182,149 +183,136 @@ db.products.insertMany([
   },
 ]);
 
+// select * from products where tags = "samsung" and tags = "monitor"
 db.products.find({
-  tags: {
-    $all: ["samsung", "monitor"],
-  },
+  tags: { $all: ["samsung", "monitor"] },
 });
 
+// select * from products where tags in ("samsung", "logitech")
 db.products.find({
-  tags: {
-    $elemMatch: {
-      $in: ["samsung", "logitech"],
-    },
-  },
+  tags: { $elemMatch: { $in: ["samsung", "logitech"] } },
 });
 
+// select * from products where count(tags) = 3
 db.products.find({
-  tags: {
-    $size: 3,
-  },
+  tags: { $size: 3 },
 });
 
-db.products.find(
-  {},
-  {
-    name: 1,
-    category: 1,
-  },
-);
+// select _id, name, category from products
+db.products.find({}, { name: 1, category: 1 });
 
-db.products.find(
-  {},
-  {
-    tags: 0,
-    price: 0,
-  },
-);
+// select _id, name, category, category from products (exclude tags, price)
+db.products.find({}, { tags: 0, price: 0 });
 
+// select name, tags (filtered) from products
 db.products.find(
   {},
   {
     name: 1,
     tags: {
-      $elemMatch: {
-        $in: ["samsung", "logitech", "accessories"],
-      },
+      $elemMatch: { $in: ["samsung", "logitech", "accessories"] },
     },
   },
 );
 
-db.products.find(
-  {
-    tags: {
-      $exists: true,
-    },
-  },
-  {
-    name: 1,
-    "tags.$": 1,
-  },
-);
+// select name, tags[first match] from products where tags is not null
+db.products.find({ tags: { $exists: true } }, { name: 1, "tags.$": 1 });
 
-db.products.find(
-  {
-    tags: {
-      $exists: true,
-    },
-  },
-  {
-    name: 1,
-    tags: {
-      $slice: 2,
-    },
-  },
-);
+// select name, tags[0..1] from products where tags is not null
+db.products.find({ tags: { $exists: true } }, { name: 1, tags: { $slice: 2 } });
 
+// select count(*) from products
 db.products.find({}).count();
 
+// select * from products limit 4
 db.products.find({}).limit(4);
 
+// select * from products limit 4 offset 2
 db.products.find({}).limit(4).skip(2);
 
-db.products.find({}).sort({
-  category: 1,
-  name: -1,
-});
+// select * from products order by category asc, name desc
+db.products.find({}).sort({ category: 1, name: -1 });
 
-db.products.updateOne(
-  {
-    _id: 1,
-  },
-  {
-    $set: {
-      category: "food",
-    },
-  },
-);
+// update products set category = 'food' where _id = 1
+db.products.updateOne({ _id: 1 }, { $set: { category: "food" } });
 
-db.products.updateOne(
-  {
-    _id: 2,
-  },
-  {
-    $set: {
-      category: "food",
-    },
-  },
-);
+// update products set category = 'food' where _id = 2
+db.products.updateOne({ _id: 2 }, { $set: { category: "food" } });
 
+// update products set tags = ['food'] where category = 'food' and tags is null
 db.products.updateMany(
   {
-    $and: [
-      {
-        category: {
-          $eq: "food",
-        },
-      },
-      {
-        tags: {
-          $exists: false,
-        },
-      },
-    ],
+    $and: [{ category: { $eq: "food" } }, { tags: { $exists: false } }],
   },
-  {
-    $set: {
-      tags: ["food"],
-    },
-  },
+  { $set: { tags: ["food"] } },
 );
 
-db.products.insertOne({
-  _id: 9,
-  name: "ups salah",
-  wrong: "salah",
-});
+// insert into products (_id, name, wrong) values (9, 'ups salah', 'salah')
+db.products.insertOne({ _id: 9, name: "ups salah", wrong: "salah" });
 
+// update products set name = '...', price = '...', ... where _id = 9 (replace entire document)
 db.products.replaceOne(
-  {
-    _id: 9,
-  },
+  { _id: 9 },
   {
     name: "Adidas Sepatu Lari Pria",
     price: new NumberLong("1100000"),
     category: "shoes",
     tags: ["adidas", "shoes", "running"],
+  },
+);
+
+db.products.updateMany(
+  {},
+  {
+    $set: {
+      stock: 0,
+    },
+  },
+);
+
+db.products.updateMany(
+  {},
+  {
+    $inc: {
+      stock: 10,
+    },
+  },
+);
+
+db.customers.updateMany(
+  {},
+  {
+    $rename: {
+      name: "full_name",
+    },
+  },
+);
+
+db.customers.updateMany(
+  {},
+  {
+    $set: {
+      wrong: "ups",
+    },
+  },
+);
+
+db.customers.updateMany(
+  {},
+  {
+    $unset: {
+      wrong: "",
+    },
+  },
+);
+
+db.products.updateMany(
+  {},
+  {
+    $currentDate: {
+      lastModifiedDate: {
+        $type: "date",
+      },
+    },
   },
 );
