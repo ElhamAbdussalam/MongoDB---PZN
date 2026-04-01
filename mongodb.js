@@ -58,3 +58,45 @@ db.products.find({
 db.orders.find({
   "items.product_id": 1,
 });
+
+db.products.insertMany([
+  {
+    _id: 3,
+    name: "Pop Mie Rasa Bakso",
+    price: new NumberLong("2500"),
+    category: "food",
+  },
+  {
+    _id: 4,
+    name: "Samsung Galaxy S10",
+    price: new NumberLong("10000000"),
+    category: "handphone",
+  },
+  {
+    _id: 5,
+    name: "Acer Predator Helios 300",
+    price: new NumberLong("20000000"),
+    category: "laptop",
+  },
+]);
+
+db.customers.find({
+  _id: {
+    $eq: "elham",
+  },
+});
+
+db.products.find({
+  price: {
+    $gt: 2000,
+  },
+});
+
+db.products.find({
+  category: {
+    $in: ["laptop", "handphone"],
+  },
+  price: {
+    $gt: 10000000,
+  },
+});
