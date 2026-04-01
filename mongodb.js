@@ -42,3 +42,19 @@ db.orders.insertOne({
     },
   ],
 });
+
+db.customers.find({
+  _id: "elham",
+});
+
+db.customers.find({
+  name: "M Elham Abdussalam",
+});
+
+db.products.find({
+  price: 2000,
+});
+
+db.orders.find({
+  "items.product_id": 1,
+});
