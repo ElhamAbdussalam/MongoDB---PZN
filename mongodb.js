@@ -100,3 +100,50 @@ db.products.find({
     $gt: 10000000,
   },
 });
+
+db.products.find({
+  $and: [
+    {
+      category: {
+        $in: ["laptop", "handphone"],
+      },
+    },
+    {
+      price: {
+        $gt: 10000000,
+      },
+    },
+  ],
+});
+
+db.products.find({
+  category: {
+    $not: {
+      $in: ["laptop", "handphone"],
+    },
+  },
+});
+
+db.products.find({
+  category: {
+    $exists: true,
+  },
+});
+
+db.products.find({
+  category: {
+    $exists: false,
+  },
+});
+
+db.products.find({
+  category: {
+    $type: "string",
+  },
+});
+
+db.products.find({
+  price: {
+    $type: ["int", "long"],
+  },
+});
