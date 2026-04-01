@@ -1,58 +1,32 @@
-// ============================================================
-// MEMBUAT COLLECTION
-// SQL: CREATE TABLE customers (...);
-// ============================================================
+// create table customers
 db.createCollection("customers");
 
-// SQL: CREATE TABLE products (...);
+// create table products
 db.createCollection("products");
 
-// SQL: CREATE TABLE orders (...);
+// create table orders
 db.createCollection("orders");
 
-// SQL: SHOW TABLES;
+// show tables
 db.getCollectionNames();
 
-// ============================================================
-// MEMBACA SEMUA DATA
-// SQL: SELECT * FROM customers;
-// ============================================================
+// select * from customers
 db.customers.find();
 
-// ============================================================
-// INSERT SATU DATA
-// SQL: INSERT INTO customers (_id, name) VALUES ('elham', 'M Elham Abdussalam');
-// ============================================================
+// insert into customers (_id, name) values ('elham', 'M Elham Abdussalam')
 db.customers.insertOne({
   _id: "elham",
   name: "M Elham Abdussalam",
 });
 
-// ============================================================
-// INSERT BANYAK DATA SEKALIGUS
-// SQL: INSERT INTO products (_id, name, price) VALUES
-//      (1, 'Indomie Ayam Bawang', 2000),
-//      (2, 'Mie Sedap Soto', 2000);
-// ============================================================
+// insert into products (_id, name, price) values (1, 'Indomie Ayam Bawang', 2000), (2, 'Mie Sedap Soto', 2000)
 db.products.insertMany([
-  {
-    _id: 1,
-    name: "Indomie Ayam Bawang",
-    price: new NumberLong("2000"),
-  },
-  {
-    _id: 2,
-    name: "Mie Sedap Soto",
-    price: new NumberLong("2000"),
-  },
+  { _id: 1, name: "Indomie Ayam Bawang", price: new NumberLong("2000") },
+  { _id: 2, name: "Mie Sedap Soto", price: new NumberLong("2000") },
 ]);
 
-// ============================================================
-// INSERT DATA DENGAN NESTED / EMBEDDED DOCUMENT
-// SQL: -- Tidak ada padanan langsung di SQL (biasanya pakai JOIN)
-//      INSERT INTO orders (_id, total) VALUES (..., 8000);
-//      INSERT INTO order_items (order_id, product_id, price, quantity) VALUES (...);
-// ============================================================
+// insert into orders (_id, total) values (..., 8000)
+// insert into order_items (order_id, product_id, price, quantity) values (...)
 db.orders.insertOne({
   _id: new ObjectId(),
   total: new NumberLong("8000"),
@@ -70,46 +44,19 @@ db.orders.insertOne({
   ],
 });
 
-// ============================================================
-// QUERY BERDASARKAN PRIMARY KEY / _id
-// SQL: SELECT * FROM customers WHERE _id = 'elham';
-// ============================================================
-db.customers.find({
-  _id: "elham",
-});
+// select * from customers where _id = 'elham'
+db.customers.find({ _id: "elham" });
 
-// ============================================================
-// QUERY BERDASARKAN KOLOM BIASA
-// SQL: SELECT * FROM customers WHERE name = 'M Elham Abdussalam';
-// ============================================================
-db.customers.find({
-  name: "M Elham Abdussalam",
-});
+// select * from customers where name = 'M Elham Abdussalam'
+db.customers.find({ name: "M Elham Abdussalam" });
 
-// ============================================================
-// QUERY BERDASARKAN NILAI ANGKA
-// SQL: SELECT * FROM products WHERE price = 2000;
-// ============================================================
-db.products.find({
-  price: 2000,
-});
+// select * from products where price = 2000
+db.products.find({ price: 2000 });
 
-// ============================================================
-// QUERY NESTED FIELD (dot notation)
-// SQL: SELECT o.* FROM orders o
-//      JOIN order_items i ON o._id = i.order_id
-//      WHERE i.product_id = 1;
-// ============================================================
-db.orders.find({
-  "items.product_id": 1,
-});
+// select * from orders where items.product_id = 1
+db.orders.find({ "items.product_id": 1 });
 
-// ============================================================
-// INSERT DENGAN FIELD TAMBAHAN (schema flexible / schemaless)
-// SQL: -- Di SQL kolom harus didefinisikan dulu di DDL
-//      ALTER TABLE products ADD COLUMN category VARCHAR(50);
-//      INSERT INTO products ...;
-// ============================================================
+// insert into products (...) values (...) -- schemaless, no alter table needed
 db.products.insertMany([
   {
     _id: 3,
@@ -131,175 +78,126 @@ db.products.insertMany([
   },
 ]);
 
-// ============================================================
-// OPERATOR $eq — sama dengan (=)
-// SQL: SELECT * FROM customers WHERE _id = 'elham';
-// ============================================================
-db.customers.find({
-  _id: {
-    $eq: "elham",
-  },
-});
+// select * from customers where _id = 'elham'
+db.customers.find({ _id: { $eq: "elham" } });
 
-// ============================================================
-// OPERATOR $gt — lebih besar dari (>)
-// SQL: SELECT * FROM products WHERE price > 2000;
-// ============================================================
+// select * from products where price > 2000
+db.products.find({ price: { $gt: 2000 } });
+
+// select * from products where category in ('laptop', 'handphone') and price > 10000000
 db.products.find({
-  price: {
-    $gt: 2000,
-  },
+  category: { $in: ["laptop", "handphone"] },
+  price: { $gt: 10000000 },
 });
 
-// ============================================================
-// OPERATOR $in + $gt — filter ganda implisit (AND)
-// SQL: SELECT * FROM products
-//      WHERE category IN ('laptop', 'handphone')
-//      AND price > 10000000;
-// ============================================================
-db.products.find({
-  category: {
-    $in: ["laptop", "handphone"],
-  },
-  price: {
-    $gt: 10000000,
-  },
-});
-
-// ============================================================
-// OPERATOR $and — AND eksplisit
-// SQL: SELECT * FROM products
-//      WHERE category IN ('laptop', 'handphone')
-//      AND price > 10000000;
-// ============================================================
+// select * from products where category in ('laptop', 'handphone') and price > 10000000
 db.products.find({
   $and: [
-    {
-      category: {
-        $in: ["laptop", "handphone"],
-      },
-    },
-    {
-      price: {
-        $gt: 10000000,
-      },
-    },
+    { category: { $in: ["laptop", "handphone"] } },
+    { price: { $gt: 10000000 } },
   ],
 });
 
-// ============================================================
-// OPERATOR $not + $in — NOT IN
-// SQL: SELECT * FROM products
-//      WHERE category NOT IN ('laptop', 'handphone');
-// ============================================================
+// select * from products where category not in ('laptop', 'handphone')
 db.products.find({
-  category: {
-    $not: {
-      $in: ["laptop", "handphone"],
-    },
-  },
+  category: { $not: { $in: ["laptop", "handphone"] } },
 });
 
-// ============================================================
-// OPERATOR $exists: true — field harus ADA
-// SQL: SELECT * FROM products WHERE category IS NOT NULL;
-// ============================================================
-db.products.find({
-  category: {
-    $exists: true,
-  },
-});
+// select * from products where category is not null
+db.products.find({ category: { $exists: true } });
 
-// ============================================================
-// OPERATOR $exists: false — field TIDAK ADA
-// SQL: SELECT * FROM products WHERE category IS NULL;
-// ============================================================
-db.products.find({
-  category: {
-    $exists: false,
-  },
-});
+// select * from products where category is null
+db.products.find({ category: { $exists: false } });
 
-// ============================================================
-// OPERATOR $type — filter berdasarkan tipe data field
-// SQL: -- Tidak ada padanan langsung di SQL (tipe sudah fixed)
-//      SELECT * FROM products WHERE typeof(category) = 'string';
-// ============================================================
-db.products.find({
-  category: {
-    $type: "string",
-  },
-});
+// select * from products where typeof(category) = 'string'
+db.products.find({ category: { $type: "string" } });
 
-// ============================================================
-// OPERATOR $type dengan multiple tipe — OR tipe data
-// SQL: -- Tidak ada padanan langsung di SQL
-//      SELECT * FROM products WHERE typeof(price) IN ('int', 'long');
-// ============================================================
-db.products.find({
-  price: {
-    $type: ["int", "long"],
-  },
-});
+// select * from products where typeof(price) in ('int', 'long')
+db.products.find({ price: { $type: ["int", "long"] } });
 
-db.customers.insertOne({
-  _id: "joko",
-  name: "joko",
-});
+// insert into customers (_id, name) values ('joko', 'joko')
+db.customers.insertOne({ _id: "joko", name: "joko" });
 
+// select * from customers where _id = name
 db.customers.find({
-  $expr: {
-    $eq: ["$_id", "$name"],
-  },
+  $expr: { $eq: ["$_id", "$name"] },
 });
 
+// select * from products where name is not null and category is not null
 db.products.find({
-  $jsonSchema: {
-    required: ["name", "category"],
-  },
+  $jsonSchema: { required: ["name", "category"] },
 });
 
+// select * from products where name is not null and typeof(name) = 'string' and typeof(price) = 'number'
 db.products.find({
   $jsonSchema: {
     required: ["name"],
     properties: {
-      name: {
-        type: "string",
-      },
-      price: {
-        type: "number",
-      },
+      name: { type: "string" },
+      price: { type: "number" },
+    },
+  },
+});
+
+// select * from products where price % 5 = 0
+db.products.find({ price: { $mod: [5, 0] } });
+
+// select * from products where price % 1000000 = 0
+db.products.find({ price: { $mod: [1000000, 0] } });
+
+// select * from products where name like '%mie%' (case insensitive)
+db.products.find({ name: { $regex: /mie/, $options: "i" } });
+
+// select * from products where name like 'Mie%'
+db.products.find({ name: { $regex: /^Mie/ } });
+
+// select * from customers where _id = name
+db.customers.find({
+  $where: function () {
+    return this._id == this.name;
+  },
+});
+
+db.products.insertMany([
+  {
+    _id: 6,
+    name: "Logitech Wireless Mouse",
+    price: new NumberLong("175000"),
+    category: "laptop",
+    tags: ["logitech", "mouse", "accessories"],
+  },
+  {
+    _id: 7,
+    name: "Coller Pad Gaming",
+    price: new NumberLong("200000"),
+    category: "laptop",
+    tags: ["cooler", "laptop", "accessories", "fan"],
+  },
+  {
+    _id: 8,
+    name: "Samsung Curve Monitor",
+    price: new NumberLong("1750000"),
+    category: "computer",
+    tags: ["samsung", "monitor", "computer"],
+  },
+]);
+
+db.products.find({
+  tags: {
+    $all: ["samsung", "monitor"],
+  },
+});
+
+db.products.find({
+  tags: {
+    $elemMatch: {
+      $in: ["samsung", "logitech"],
     },
   },
 });
 
 db.products.find({
-  price: {
-    $mod: [5, 0],
-  },
-});
-
-db.products.find({
-  price: {
-    $mod: [1000000, 0],
-  },
-});
-
-db.products.find({
-  name: {
-    $regex: /mie/,
-    $options: "i",
-  },
-});
-
-db.products.find({
-  name: {
-    $regex: /^Mie/,
-  },
-});
-
-db.customers.find({
-  $where: function () {
-    return this._id == this.name;
+  tags: {
+    $size: 3,
   },
 });
