@@ -359,294 +359,166 @@ db.products.updateMany(
   },
 );
 
-db.customers.insertOne({
-  _id: "spammer",
-  full_name: "Spammer",
-});
+// insert into customers (_id, full_name) values ('spammer', 'Spammer')
+db.customers.insertOne({ _id: "spammer", full_name: "Spammer" });
 
-db.customers.deleteOne({
-  _id: "spammer",
-});
+// delete from customers where _id = 'spammer'
+db.customers.deleteOne({ _id: "spammer" });
 
+// insert into customers (_id, full_name) values ('spammer1', ...), ('spammer2', ...), ('spammer3', ...)
 db.customers.insertMany([
-  {
-    _id: "spammer1",
-    full_name: "Spammer1",
-  },
-  {
-    _id: "spammer2",
-    full_name: "Spammer2",
-  },
-  {
-    _id: "spammer3",
-    full_name: "Spammer3",
-  },
+  { _id: "spammer1", full_name: "Spammer1" },
+  { _id: "spammer2", full_name: "Spammer2" },
+  { _id: "spammer3", full_name: "Spammer3" },
 ]);
 
-db.customers.deleteMany({
-  _id: {
-    $regex: "spammer",
-  },
-});
+// delete from customers where _id like '%spammer%'
+db.customers.deleteMany({ _id: { $regex: "spammer" } });
 
+// begin;
+// insert into customers values ('eko', 'Eko'), ('kurniawan', 'Kurniawan');
+// update customers set full_name = 'Eko Kurniawan Khannedy' where _id in ('eko', 'kurniawan', 'khannedy');
+// commit;
 db.customers.bulkWrite([
-  {
-    insertOne: {
-      document: {
-        _id: "eko",
-        full_name: "Eko",
-      },
-    },
-  },
-  {
-    insertOne: {
-      document: {
-        _id: "kurniawan",
-        full_name: "Kurniawan",
-      },
-    },
-  },
+  { insertOne: { document: { _id: "eko", full_name: "Eko" } } },
+  { insertOne: { document: { _id: "kurniawan", full_name: "Kurniawan" } } },
   {
     updateMany: {
-      filter: {
-        _id: {
-          $in: ["eko", "kurniawan", "khannedy"],
-        },
-      },
-      update: {
-        $set: {
-          full_name: "Eko Kurniawan Khannedy",
-        },
-      },
+      filter: { _id: { $in: ["eko", "kurniawan", "khannedy"] } },
+      update: { $set: { full_name: "Eko Kurniawan Khannedy" } },
     },
   },
 ]);
 
-db.products.createIndex({
-  category: 1,
-});
+// create index idx_category on products (category asc)
+db.products.createIndex({ category: 1 });
 
+// show indexes from products
 db.products.getIndexes();
 
+// select * from products where category = 'food'
 db.products.find({ category: "food" });
 
-db.products
-  .find({
-    category: "food",
-  })
-  .explain();
+// explain select * from products where category = 'food'
+db.products.find({ category: "food" }).explain();
 
-db.products
-  .find({})
-  .sort({
-    category: 1,
-  })
-  .explain();
+// explain select * from products order by category asc
+db.products.find({}).sort({ category: 1 }).explain();
 
-db.products
-  .find({
-    tag: "laptop",
-  })
-  .explain();
+// explain select * from products where tag = 'laptop'
+db.products.find({ tag: "laptop" }).explain();
 
-db.products.createIndex({
-  stock: 1,
-  tags: 1,
-});
+// create index idx_stock_tags on products (stock asc, tags asc)
+db.products.createIndex({ stock: 1, tags: 1 });
 
-db.products.find({
-  stock: 10,
-  tags: "popular",
-});
+// select * from products where stock = 10 and tags = 'popular'
+db.products.find({ stock: 10, tags: "popular" });
 
+// explain select * from products where stock = 10
 db.products.find({ stock: 10 }).explain();
 
+// explain select * from products where stock = 10 and tags = 'popular'
 db.products.find({ stock: 10, tags: "popular" }).explain();
 
+// explain select * from products where tags = 'popular'
 db.products.find({ tags: "popular" }).explain();
 
+// create fulltext index on products (name, category, tags) with weights
 db.products.createIndex(
-  {
-    name: "text",
-    category: "text",
-    tags: "text",
-  },
-  {
-    weights: {
-      name: 10,
-      category: 5,
-      tags: 1,
-    },
-  },
+  { name: "text", category: "text", tags: "text" },
+  { weights: { name: 10, category: 5, tags: 1 } },
 );
 
+// show indexes from products
 db.products.getIndexes();
 
-db.products.find({
-  $text: {
-    $search: "mie",
-  },
-});
+// select * from products where match(name, category, tags) against ('mie')
+db.products.find({ $text: { $search: "mie" } });
 
-db.products.find({
-  $text: {
-    $search: "mie laptop",
-  },
-});
+// select * from products where match(name, category, tags) against ('mie laptop')
+db.products.find({ $text: { $search: "mie laptop" } });
 
-db.products.find({
-  $text: {
-    $search: "mie sedap",
-  },
-});
+// select * from products where match(name, category, tags) against ('mie sedap')
+db.products.find({ $text: { $search: "mie sedap" } });
 
-db.products.find({
-  $text: {
-    $search: "mie -sedap",
-  },
-});
+// select * from products where match(name, category, tags) against ('mie' exclude 'sedap')
+db.products.find({ $text: { $search: "mie -sedap" } });
 
-db.products
-  .find({
-    $text: {
-      $search: "mie -sedap",
-    },
-  })
-  .explain();
+// explain select * from products where match(name, category, tags) against ('mie' exclude 'sedap')
+db.products.find({ $text: { $search: "mie -sedap" } }).explain();
 
+// select *, match(name, category, tags) as searchScore from products where match against ('mie')
 db.products.find(
-  {
-    $text: {
-      $search: "mie",
-    },
-  },
-  {
-    searchScore: {
-      $meta: "textScore",
-    },
-  },
+  { $text: { $search: "mie" } },
+  { searchScore: { $meta: "textScore" } },
 );
 
-db.customers.createIndex({
-  "customFields.$**": 1,
-});
+// create index idx_customfields on customers (customFields.** asc) -- wildcard index
+db.customers.createIndex({ "customFields.$**": 1 });
 
+// insert into customers (...) values (...), (...), (...)
 db.customers.insertMany([
   {
     _id: "budi",
     full_name: "budi",
-    customFields: {
-      hobby: "Gaming",
-      university: "Universitas Belum Ada",
-    },
+    customFields: { hobby: "Gaming", university: "Universitas Belum Ada" },
   },
   {
     _id: "rully",
     full_name: "rully",
-    customFields: {
-      ipk: 3.2,
-      university: "Universitas Belum Ada",
-    },
+    customFields: { ipk: 3.2, university: "Universitas Belum Ada" },
   },
   {
     _id: "rudi",
     full_name: "rudi",
-    customFields: {
-      motherName: "tini",
-      passion: "entepreneur",
-    },
+    customFields: { motherName: "tini", passion: "entepreneur" },
   },
 ]);
 
-db.customFields
-  .find({
-    "customFields.passion": "entepreneur",
-  })
-  .explain();
+// explain select * from customers where customFields.passion = 'entepreneur'
+db.customFields.find({ "customFields.passion": "entepreneur" }).explain();
 
+// create table sessions
 db.createCollection("sessions");
 
-db.sessions.createIndex(
-  {
-    createdAt: 1,
-  },
-  {
-    expireAfterSeconds: 10,
-  },
-);
+// create index idx_createdat on sessions (createdAt asc) -- ttl index, auto delete after 10s
+db.sessions.createIndex({ createdAt: 1 }, { expireAfterSeconds: 10 });
 
-db.sessions.insertOne({
-  _id: 1,
-  session: "Session 1",
-  createdAt: new Date(),
-});
+// insert into sessions (_id, session, createdAt) values (1, 'Session 1', now())
+db.sessions.insertOne({ _id: 1, session: "Session 1", createdAt: new Date() });
 
+// create unique index idx_email on customers (email asc) -- sparse (skip null)
+db.customers.createIndex({ email: 1 }, { unique: true, sparse: true });
+
+// update customers set email = 'eko@example.com' where _id = 'eko'
+db.customers.updateOne({ _id: "eko" }, { $set: { email: "eko@example.com" } });
+
+// update customers set email = 'eko@example.com' where _id = 'joko' -- will error: duplicate
+db.customers.updateOne({ _id: "joko" }, { $set: { email: "eko@example.com" } });
+
+// create index idx_fullname on customers (full_name asc) -- case insensitive collation
 db.customers.createIndex(
-  {
-    email: 1,
-  },
-  {
-    unique: true,
-    sparse: true,
-  },
+  { full_name: 1 },
+  { collation: { locale: "en", strength: 2 } },
 );
 
-db.customers.updateOne(
-  {
-    _id: "eko",
-  },
-  {
-    $set: {
-      email: "eko@example.com",
-    },
-  },
-);
+// select * from customers where full_name = 'Eko Kurniawan Khannedy'
+db.customers.find({ full_name: "Eko Kurniawan Khannedy" });
 
-db.customers.updateOne(
-  {
-    _id: "joko",
-  },
-  {
-    $set: {
-      email: "eko@example.com",
-    },
-  },
-);
-
-db.customers.createIndex(
-  {
-    full_name: 1,
-  },
-  {
-    collation: {
-      locale: "en",
-      strength: 2,
-    },
-  },
-);
-
-db.customers.find({
-  full_name: "Eko Kurniawan Khannedy",
-});
-
+// select * from customers where full_name = 'EKO Kurniawan KHANNEDY' collate case_insensitive
 db.customers
-  .find({
-    full_name: "EKO Kurniawan KHANNEDY",
-  })
-  .collation({
-    locale: "en",
-    strength: 2,
-  });
+  .find({ full_name: "EKO Kurniawan KHANNEDY" })
+  .collation({ locale: "en", strength: 2 });
 
+// create index idx_price on products (price asc) where stock > 0 -- partial index
 db.products.createIndex(
-  {
-    price: 1,
-  },
-  {
-    partialFilterExpression: {
-      stock: {
-        $gt: 0,
-      },
-    },
-  },
+  { price: 1 },
+  { partialFilterExpression: { stock: { $gt: 0 } } },
 );
+
+// create user 'mongo' identified by 'mongo' with roles (userAdminAnyDatabase, readWriteAnyDatabase)
+db.createUser({
+  user: "mongo",
+  pwd: "mongo",
+  roles: ["userAdminAnyDatabase", "readWriteAnyDatabase"],
+});
