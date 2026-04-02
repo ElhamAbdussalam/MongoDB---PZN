@@ -526,3 +526,40 @@ db.products.find(
     },
   },
 );
+
+db.customers.createIndex({
+  "customFields.$**": 1,
+});
+
+db.customers.insertMany([
+  {
+    _id: "budi",
+    full_name: "budi",
+    customFields: {
+      hobby: "Gaming",
+      university: "Universitas Belum Ada",
+    },
+  },
+  {
+    _id: "rully",
+    full_name: "rully",
+    customFields: {
+      ipk: 3.2,
+      university: "Universitas Belum Ada",
+    },
+  },
+  {
+    _id: "rudi",
+    full_name: "rudi",
+    customFields: {
+      motherName: "tini",
+      passion: "entepreneur",
+    },
+  },
+]);
+
+db.customFields
+  .find({
+    "customFields.passion": "entepreneur",
+  })
+  .explain();
