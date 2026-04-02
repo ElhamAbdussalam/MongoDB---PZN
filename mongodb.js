@@ -563,3 +563,90 @@ db.customFields
     "customFields.passion": "entepreneur",
   })
   .explain();
+
+db.createCollection("sessions");
+
+db.sessions.createIndex(
+  {
+    createdAt: 1,
+  },
+  {
+    expireAfterSeconds: 10,
+  },
+);
+
+db.sessions.insertOne({
+  _id: 1,
+  session: "Session 1",
+  createdAt: new Date(),
+});
+
+db.customers.createIndex(
+  {
+    email: 1,
+  },
+  {
+    unique: true,
+    sparse: true,
+  },
+);
+
+db.customers.updateOne(
+  {
+    _id: "eko",
+  },
+  {
+    $set: {
+      email: "eko@example.com",
+    },
+  },
+);
+
+db.customers.updateOne(
+  {
+    _id: "joko",
+  },
+  {
+    $set: {
+      email: "eko@example.com",
+    },
+  },
+);
+
+db.customers.createIndex(
+  {
+    full_name: 1,
+  },
+  {
+    collation: {
+      locale: "en",
+      strength: 2,
+    },
+  },
+);
+
+db.customers.find({
+  full_name: "Eko Kurniawan Khannedy",
+});
+
+db.customers
+  .find({
+    full_name: "EKO Kurniawan KHANNEDY",
+  })
+  .collation({
+    locale: "en",
+    strength: 2,
+  });
+
+db.products.createIndex(
+  {
+    price: 1,
+  },
+  {
+    partialFilterExpression: {
+      stock: {
+        $gt: 0,
+      },
+    },
+  },
+);
