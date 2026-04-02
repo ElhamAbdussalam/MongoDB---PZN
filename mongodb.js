@@ -421,3 +421,46 @@ db.customers.bulkWrite([
     },
   },
 ]);
+
+db.products.createIndex({
+  category: 1,
+});
+
+db.products.getIndexes();
+
+db.products.find({ category: "food" });
+
+db.products
+  .find({
+    category: "food",
+  })
+  .explain();
+
+db.products
+  .find({})
+  .sort({
+    category: 1,
+  })
+  .explain();
+
+db.products
+  .find({
+    tag: "laptop",
+  })
+  .explain();
+
+db.products.createIndex({
+  stock: 1,
+  tags: 1,
+});
+
+db.products.find({
+  stock: 10,
+  tags: "popular",
+});
+
+db.products.find({ stock: 10 }).explain();
+
+db.products.find({ stock: 10, tags: "popular" }).explain();
+
+db.products.find({ tags: "popular" }).explain();
