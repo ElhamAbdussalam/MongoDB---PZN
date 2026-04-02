@@ -261,58 +261,100 @@ db.products.replaceOne(
   },
 );
 
+// update products set stock = 0
+db.products.updateMany({}, { $set: { stock: 0 } });
+
+// update products set stock = stock + 10
+db.products.updateMany({}, { $inc: { stock: 10 } });
+
+// alter table customers rename column name to full_name
+db.customers.updateMany({}, { $rename: { name: "full_name" } });
+
+// update customers set wrong = 'ups'
+db.customers.updateMany({}, { $set: { wrong: "ups" } });
+
+// update customers set wrong = null (remove field)
+db.customers.updateMany({}, { $unset: { wrong: "" } });
+
+// update products set lastModifiedDate = now()
+db.products.updateMany(
+  {},
+  { $currentDate: { lastModifiedDate: { $type: "date" } } },
+);
+
+// update products set ratings = [90, 80, 70]
+db.products.updateMany({}, { $set: { ratings: [90, 80, 70] } });
+
+// update products set ratings[matched] = 100 where ratings = 90
+db.products.updateMany({ ratings: 90 }, { $set: { "ratings.$": 100 } });
+
+// update products set ratings[all] = 100
+db.products.updateMany({}, { $set: { "ratings.$[]": 100 } });
+
+// update products set ratings = [100]
+db.products.updateMany({}, { $set: { ratings: [100] } });
+
+// update products set ratings[element] = 100 where element >= 80
+db.products.updateMany(
+  {},
+  { $set: { "ratings.$[element]": 100 } },
+  { arrayFilters: [{ element: { $gte: 80 } }] },
+);
+
+// update products set ratings[0] = 50, ratings[1] = 60
+db.products.updateMany({}, { $set: { "ratings.0": 50, "ratings.1": 60 } });
+
+// update products set tags = array_add_unique(tags, 'popular') where _id = 1
+db.products.updateOne({ _id: 1 }, { $addToSet: { tags: "popular" } });
+
+// update products set ratings = ratings[1:] (remove first element) where _id = 1
+db.products.updateOne({ _id: 1 }, { $pop: { ratings: -1 } });
+
+// update products set ratings = ratings[:-1] (remove last element) where _id = 2
+db.products.updateOne({ _id: 2 }, { $pop: { ratings: 1 } });
+
+// update products set ratings = array_remove(ratings) where ratings >= 80
+db.products.updateMany({}, { $pull: { ratings: { $gte: 80 } } });
+
+// update products set ratings = array_append(ratings, 100)
+db.products.updateMany({}, { $push: { ratings: 100 } });
+
+// update products set ratings = array_remove_all(ratings, [100])
+db.products.updateMany({}, { $pullAll: { ratings: [100] } });
+
+// update products set ratings = array_append(ratings, 100, 200, 300)
+db.products.updateMany({}, { $push: { ratings: { $each: [100, 200, 300] } } });
+
+// update products set tags = array_add_unique(tags, 'trending', 'popular')
+db.products.updateMany(
+  {},
+  { $addToSet: { tags: { $each: ["trending", "popular"] } } },
+);
+
+// update products set tags = array_insert(tags, position=1, 'hot')
+db.products.updateMany(
+  {},
+  { $push: { tags: { $each: ["hot"], $position: 1 } } },
+);
+
+// update products set ratings = array_append_sort_desc(ratings, 100, 200, 300, 400, 500)
+db.products.updateMany(
+  {},
+  { $push: { ratings: { $each: [100, 200, 300, 400, 500], $sort: -1 } } },
+);
+
+// update products set ratings = array_append_slice_last10(ratings, 100, 200, 300, 400, 500)
+db.products.updateMany(
+  {},
+  { $push: { ratings: { $each: [100, 200, 300, 400, 500], $slice: -10 } } },
+);
+
+// update products set ratings = array_append_sort_desc_slice_first10(ratings, 100, 200, 300, 400, 500)
 db.products.updateMany(
   {},
   {
-    $set: {
-      stock: 0,
-    },
-  },
-);
-
-db.products.updateMany(
-  {},
-  {
-    $inc: {
-      stock: 10,
-    },
-  },
-);
-
-db.customers.updateMany(
-  {},
-  {
-    $rename: {
-      name: "full_name",
-    },
-  },
-);
-
-db.customers.updateMany(
-  {},
-  {
-    $set: {
-      wrong: "ups",
-    },
-  },
-);
-
-db.customers.updateMany(
-  {},
-  {
-    $unset: {
-      wrong: "",
-    },
-  },
-);
-
-db.products.updateMany(
-  {},
-  {
-    $currentDate: {
-      lastModifiedDate: {
-        $type: "date",
-      },
+    $push: {
+      ratings: { $each: [100, 200, 300, 400, 500], $slice: 10, $sort: -1 },
     },
   },
 );
